@@ -1,0 +1,18 @@
+name: test
+
+on:
+  push:
+    branches: 
+      - test
+
+jobs:
+  kustomize-stuff:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Run kubernetes tools
+      uses: stefanprodan/kub-tools@v1.7.1
+
+    - run: kustomize version
