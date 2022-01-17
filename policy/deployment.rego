@@ -5,6 +5,8 @@ deny[msg] {
   not input.spec.template.spec.securityContext.runAsNonRoot
 
   msg := "Containers must not run as root"
+  #msg = sprintf("Containers must not run as root in Deployment %s", [name])
+
 }
 
 deny[msg] {

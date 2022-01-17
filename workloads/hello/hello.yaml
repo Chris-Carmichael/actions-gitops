@@ -15,6 +15,9 @@ spec:
       labels:
         app: hello
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
       containers:
       - name: hello
         image: nexus.swimlane.io:5000/ccarmichael/hello
