@@ -17,7 +17,8 @@ jobs:
       with:
         command: |
           echo "Run conftest"
-          kustomize build workloads/hello
+          #kustomize build workloads/hello
+          kustomize build workloads/hello | conftest test -p policy/deployment.rego -
           #kustomize build workloads/hello | conftest test -p test/policy -
           #echo "Run kubeval"
           #helmv3 template ./charts/test | kubeval --strict
