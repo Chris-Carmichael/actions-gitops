@@ -13,3 +13,8 @@ deny[msg] {
 
   msg := "Containers must provide app label for pod selectors"
 }
+
+deny[msg] {
+	input.kind = "Secret"
+	msg = "Secrets are not allowed.  Use ExternalSecret kind."
+}
