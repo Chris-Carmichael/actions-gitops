@@ -1,0 +1,53 @@
+---
+- name: install or update tools
+  hosts: localhost
+  become: false
+  tasks:
+    # conftest
+    - name: get conftest
+      unarchive:
+        src: https://github.com/open-policy-agent/conftest/releases/download/v0.30.0/conftest_0.30.0_Linux_x86_64.tar.gz
+        dest: /usr/local/bin
+        include: 
+          - conftest
+        remote_src: true
+        mode: '0755'
+    # polaris
+    - name: get latest polaris
+      unarchive:
+        src: https://github.com/FairwindsOps/polaris/releases/latest/download/polaris_linux_amd64.tar.gz
+        dest: /usr/local/bin
+        include: 
+          - polaris
+        remote_src: true
+        mode: '0755'
+    # kubeconform
+    - name: get latest kubeconform
+      unarchive:
+        src: https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+        dest: /usr/local/bin
+        include: 
+          - kubeconform
+        remote_src: true
+        mode: '0755'
+    #
+    # These tools have the version in the file so this line needs changed to upgrade :(
+    #
+    # kube-score
+    - name: get kube-score
+      get_url:
+        url: https://github.com/zegl/kube-score/releases/latest/download/kube-score_1.13.0_linux_amd64
+        dest: /usr/local/bin/kube-score
+        mode: '0755'
+    # kubeaudit
+    - name: get kubeaudit
+      unarchive:
+        src: https://github.com/Shopify/kubeaudit/releases/download/0.16.0/kubeaudit_0.16.0_linux_amd64.tar.gz
+        dest: /usr/local/bin
+        include: 
+          - kubeaudit
+        remote_src: true
+        mode: '0755'
+    #
+    # ^^^^ These tools have the version in the file so this line needs changed to upgrade :(
+    #
