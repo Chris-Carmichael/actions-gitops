@@ -8,3 +8,4 @@ kind: Kustomization
 resources:
   - ./hello.yaml
   - ./namespace.yaml
+  - ./boo.yaml
