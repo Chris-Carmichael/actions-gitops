@@ -10,19 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: checkout repo
+      uses: actions/checkout@v2
+
+    - name: Add kustomize-remote ssh key
+      uses: webfactory/ssh-agent@v0.5.4
+      if: always()
+      with:
+        ssh-private-key: ${{ secrets.KUSTOMIZE_REMOTE_KEY }}
 
     - name: Run kubernetes tools
       uses: stefanprodan/kube-tools@v1.7.1
       with:
         command: |
           echo "Run conftest"
-          #kustomize build workloads/hello
           kustomize build workloads/hello | conftest test -p policy/deployment.rego -
+          kustomize build workloads/sre-semver
           #kustomize build workloads/hello | conftest test -p test/policy -
           #echo "Run kubeval"
           #helmv3 template ./charts/test | kubeval --strict
-
 
     - run: kustomize version
 
