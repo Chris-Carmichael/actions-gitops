@@ -19,18 +19,22 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.KUSTOMIZE_REMOTE_KEY }}
 
+    - name: ansible install kube tools
+      run: ansible-playbook ./playbooks/install-tools.yaml
+
     - name: Look for conftest
       run: conftest --version
-
-    #- name: ansible install some tools
-    #  # install tools 
-    #  run: ansible-playbook ./playbooks/install-tools.yaml
 
     - name: test local repo kustomize from OS
       run: kustomize build workloads/hello
 
     - name: test private remote base kustomize from OS
       run: kustomize build workloads/sre-semver
+
+    - name: Run conftest jobs
+      run: |
+        kustomize build workloads/hello | conftest test -p policy/deployment.rego -
+        kustomize build workloads/sre-semver | conftest test -p policy/deployment.rego -
 
     # can't use private remote base because of key inception
     #- name: Run kubernetes tools
