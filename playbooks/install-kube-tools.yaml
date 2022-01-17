@@ -6,7 +6,7 @@
   vars:
     - conftest_version: "0.30.0"
     - polaris_version: "4.2.0"
-    - kube-score_version: "1.13.0"
+    - kubescore_version: "1.13.0"
     - kubeaudit_version: "0.16.0"
     - kubeconform_version: "v0.4.12"
 
@@ -40,7 +40,7 @@
 
     - name: get kube-score
       get_url:
-        url: https://github.com/zegl/kube-score/releases/latest/download/kube-score_{{ kube-score_version }}_linux_amd64
+        url: https://github.com/zegl/kube-score/releases/latest/download/kube-score_{{ kubescore_version }}_linux_amd64
         dest: /usr/local/bin/kube-score
         mode: '0755'
 
