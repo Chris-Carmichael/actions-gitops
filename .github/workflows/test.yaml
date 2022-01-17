@@ -19,16 +19,19 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.KUSTOMIZE_REMOTE_KEY }}
 
-    - name: Run kubernetes tools
-      uses: stefanprodan/kube-tools@v1.7.1
-      with:
-        command: |
-          echo "Run conftest"
-          kustomize build workloads/hello | conftest test -p policy/deployment.rego -
-          kustomize build workloads/sre-semver
-          #kustomize build workloads/hello | conftest test -p test/policy -
-          #echo "Run kubeval"
-          #helmv3 template ./charts/test | kubeval --strict
+    - name: test private remote base kustomize from OS
+      run: kustomize build workloads/sre-semver
 
-    - run: kustomize version
+    #- name: Run kubernetes tools
+    #  uses: stefanprodan/kube-tools@v1.7.1
+    #  with:
+    #    command: |
+    #      echo "Run conftest"
+    #      kustomize build workloads/hello | conftest test -p policy/deployment.rego -
+    #      kustomize build workloads/sre-semver
+    #      #kustomize build workloads/hello | conftest test -p test/policy -
+    #      #echo "Run kubeval"
+    #      #helmv3 template ./charts/test | kubeval --strict
+
+    #- run: kustomize version
 
