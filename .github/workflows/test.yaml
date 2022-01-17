@@ -19,6 +19,9 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.KUSTOMIZE_REMOTE_KEY }}
 
+    - name: test local repo kustomize from OS
+      run: kustomize build workloads/hello
+
     - name: test private remote base kustomize from OS
       run: kustomize build workloads/sre-semver
 
