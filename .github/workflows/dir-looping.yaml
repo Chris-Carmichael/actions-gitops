@@ -68,7 +68,7 @@ jobs:
               echo $DIR
             fi
           done
-          echo "::set-output name=BOO"
+          echo "::set-output name=BOO::BLAH"
 
       - name: List all kustomized directories
         run: |
