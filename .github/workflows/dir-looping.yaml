@@ -2,8 +2,11 @@ name: dir-looping
 
 on:
   push:
-    branches: 
+    branches:
       - test2
+  pull_request:
+    branches:
+      - main
 
 jobs:
   collect-directories:
