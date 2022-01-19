@@ -68,7 +68,8 @@ jobs:
               echo $DIR
             fi
           done
+          echo "::set-output name=BOO"
 
       - name: List all kustomized directories
         run: |
-          echo "test string: ${{ steps.kust-dirs.outputs.output }}"
+          echo "test string: ${{ steps.kust-dirs.outputs.BOO }}"
