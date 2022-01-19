@@ -43,7 +43,7 @@ jobs:
             fi
           done | sort -u)
           echo "$KUST_DIRS"
-          echo "::set-output name=KUST_DIRS::$KUST_DIRS"
+          #echo "::set-output name=KUST_DIRS::$KUST_DIRS"
 
       - name: List all kustomized directories
         run: |
