@@ -36,15 +36,16 @@ jobs:
       - name: Find kustomized directories
         id: kustomized-dirs
         run: |
-          /bin/bash -c $(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          /bin/bash -c KUST_DIRS=$(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             DIR=$(dirname $file)
             if test -f $DIR/kustomization.yaml; then
               echo $DIR
             fi
           done) | sort -u
+          echo "::set-output name=KUST_DIRS::$KUST_DIRS"
 
       - name: List all kustomized directories
         run: |
-          for file in "${{ steps.kustomized-dirs.outputs.* }}"; do
+          for file in ${{ steps.kustomized-dirs.outputs.KUST_DIRS }}; do
             echo "$file was changed"
           done
