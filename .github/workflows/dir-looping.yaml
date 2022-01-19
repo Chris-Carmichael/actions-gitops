@@ -61,6 +61,7 @@ jobs:
 
       - name: List all kustomized directories
         run: |
-          for dir in ${{ env.KUST_DIRS }}; do
-            echo "$dir is kustomized"
-          done
+          echo "test string: ${{ env.KUST_DIRS }}"
+          #for dir in ${{ env.KUST_DIRS }}; do
+          #  echo "$dir is kustomized"
+          #done
