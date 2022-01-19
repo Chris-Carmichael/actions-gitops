@@ -55,9 +55,12 @@ jobs:
             fi
           done)
           echo "$KUST_DIRS"
+          echo "KUST_DIRS<<EOF" >> $GITHUB_ENV
+          echo "$KUST_DIRS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: List all kustomized directories
         run: |
-          for file in ${{ steps.kust-dirs.outputs }}; do
+          for file in ${{ env.KUST_DIRS }}; do
             echo "$file was changed"
           done
