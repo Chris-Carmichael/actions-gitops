@@ -8,6 +8,11 @@ on:
 jobs:
   collect-directories:
     runs-on: ubuntu-latest
+
     steps:
+
+      - name: checkout repo
+        uses: actions/checkout@v2
+
       - name: get directories
         run: ./scripts/get-directories.sh
