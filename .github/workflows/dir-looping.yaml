@@ -71,4 +71,4 @@ jobs:
 
       - name: List all kustomized directories
         run: |
-          echo "test string: ${{ steps.kust-dirs.outputs.* }}"
+          echo "test string: ${{ steps.kust-dirs.outputs.output }}"
