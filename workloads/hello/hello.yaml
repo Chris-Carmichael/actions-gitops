@@ -17,7 +17,7 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1001
+        runAsUser: 1002
       containers:
       - name: hello
         image: nexus.swimlane.io:5000/ccarmichael/hello
