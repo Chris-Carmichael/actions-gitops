@@ -41,7 +41,7 @@ jobs:
             if test -f $DIR/kustomization.yaml; then
               echo $DIR
             fi
-          done) | sort -u
+          done | sort -u)
           echo "::set-output name=KUST_DIRS::$KUST_DIRS"
 
       - name: List all kustomized directories
