@@ -45,24 +45,30 @@ jobs:
       #    echo "$KUST_DIRS"
       #    #echo "::set-output name=KUST_DIRS::$KUST_DIRS"
 
+      #- name: find kust dirs
+      #  id: kust-dirs
+      #  run: |
+      #    KUST_DIRS=$(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+      #      DIR=$(dirname $file)
+      #      if test -f $DIR/kustomization.yaml; then
+      #        echo $DIR
+      #      fi
+      #    done)
+      #    echo "$KUST_DIRS"
+      #    echo "KUST_DIRS<<EOF" >> $GITHUB_ENV
+      #    echo "$KUST_DIRS" >> $GITHUB_ENV
+      #    echo "EOF" >> $GITHUB_ENV
+
       - name: find kust dirs
         id: kust-dirs
         run: |
-          KUST_DIRS=$(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             DIR=$(dirname $file)
             if test -f $DIR/kustomization.yaml; then
               echo $DIR
             fi
-          done)
-          echo "$KUST_DIRS"
-          echo "KUST_DIRS<<EOF" >> $GITHUB_ENV
-          echo "$KUST_DIRS" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          done
 
       - name: List all kustomized directories
         run: |
-          echo "test string: ${{ env.KUST_DIRS }}"
-          dirs=($($KUST_DIRS))
-          for dir in $dirs; do
-            echo "$dir is kustomized"
-          done
+          echo "test string: ${{ steps.kust-dirs.outputs.* }}"
