@@ -2,12 +2,33 @@ name: dir-looping
 
 on:
   push:
-    branches: 
+    branches:
       - test2
+  pull_request:
+    branches:
+      - main
 
 jobs:
   collect-directories:
     runs-on: ubuntu-latest
+
     steps:
+
+      # https://github.com/actions/checkout
+      - name: checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
       - name: get directories
         run: ./scripts/get-directories.sh
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v13.1
+
+      - name: List all changed files
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "$file was changed"
+          done
