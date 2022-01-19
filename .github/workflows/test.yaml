@@ -1,0 +1,74 @@
+name: test
+
+on:
+  push:
+    branches: 
+      - test
+
+jobs:
+  kustomize-stuff:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout repo
+      uses: actions/checkout@v2
+
+    - name: Add kustomize-remote ssh key
+      uses: webfactory/ssh-agent@v0.5.4
+      if: always()
+      with:
+        ssh-private-key: ${{ secrets.KUSTOMIZE_REMOTE_KEY }}
+
+    - name: ansible install kube tools
+      run: ansible-playbook ./playbooks/install-kube-tools.yaml
+
+    - name: Look for conftest
+      run: conftest --version
+
+    - name: test local repo kustomize from OS
+      run: kustomize build workloads/hello
+
+    - name: test private remote base kustomize from OS
+      run: kustomize build workloads/sre-semver
+
+    #- uses: stefanzweifel/git-auto-commit-action@v4
+    #  # commit back into branch
+    #  with:
+    #    commit_message: apply kustomize cfg fmt
+
+    ## Maybe not tackle yet because of time to write our own policies
+    #- name: Run conftest jobs
+    #  run: |
+    #    kustomize build workloads/hello | conftest test -p policy/deployment.rego -
+    #    kustomize build workloads/sre-semver | conftest test -p policy/deployment.rego -
+    #    helm template workloads/helm_boo | conftest
+
+    ## We need to template out our manifests for this to work properly
+    #- name: run kubeconform
+    #  if: always()
+    #  run: kubeconform -ignore-filename-pattern "kustomization.yaml|.argocd*" -strict -summary workloads/
+
+    ## We need to template our manifests somewhere for this to work.
+    #- name: kube-score
+    #  # best practice & security audit
+    #  if: always()
+    #  run: find  ./manifests -type f  \( -name '*.yaml' -o  -name '*.yml' \) -exec kube-score score --kubernetes-version v1.20 -o ci {} \;
+
+    #- name: run polaris audit
+    #  if: always()
+    #  run: polaris audit --format pretty --audit-path ./workloads
+
+    # can't use private remote base because of key inception
+    #- name: Run kubernetes tools
+    #  uses: stefanprodan/kube-tools@v1.7.1
+    #  with:
+    #    command: |
+    #      echo "Run conftest"
+    #      kustomize build workloads/hello | conftest test -p policy/deployment.rego -
+    #      #kustomize build workloads/sre-semver
+    #      #kustomize build workloads/hello | conftest test -p test/policy -
+    #      #echo "Run kubeval"
+    #      #helmv3 template ./charts/test | kubeval --strict
+
+    #- run: kustomize version
+

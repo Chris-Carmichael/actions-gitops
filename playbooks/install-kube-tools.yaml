@@ -1,0 +1,54 @@
+---
+- name: install or update tools
+  hosts: localhost
+  become: false
+
+  vars:
+    - conftest_version: "0.30.0"
+    - polaris_version: "4.2.0"
+    - kubescore_version: "1.13.0"
+    - kubeaudit_version: "0.16.0"
+    - kubeconform_version: "v0.4.12"
+
+  tasks:
+    - name: get conftest
+      unarchive:
+        src: https://github.com/open-policy-agent/conftest/releases/download/v{{ conftest_version }}/conftest_{{ conftest_version }}_Linux_x86_64.tar.gz
+        dest: /usr/local/bin
+        include: 
+          - conftest
+        remote_src: true
+        mode: '0755'
+
+    - name: get polaris
+      unarchive:
+        src: https://github.com/FairwindsOps/polaris/releases/download/{{ polaris_version }}/polaris_linux_amd64.tar.gz
+        dest: /usr/local/bin
+        include: 
+          - polaris
+        remote_src: true
+        mode: '0755'
+
+    - name: get kubeconform
+      unarchive:
+        src: https://github.com/yannh/kubeconform/releases/download/{{ kubeconform_version }}/kubeconform-linux-amd64.tar.gz
+        dest: /usr/local/bin
+        include: 
+          - kubeconform
+        remote_src: true
+        mode: '0755'
+
+    - name: get kube-score
+      get_url:
+        url: https://github.com/zegl/kube-score/releases/latest/download/kube-score_{{ kubescore_version }}_linux_amd64
+        dest: /usr/local/bin/kube-score
+        mode: '0755'
+
+    - name: get kubeaudit
+      unarchive:
+        src: https://github.com/Shopify/kubeaudit/releases/download/{{ kubeaudit_version }}/kubeaudit_{{ kubeaudit_version }}_linux_amd64.tar.gz
+        dest: /usr/local/bin
+        include: 
+          - kubeaudit
+        remote_src: true
+        mode: '0755'
