@@ -9,3 +9,4 @@ resources:
   - ./hello.yaml
   - ./namespace.yaml
   #- ./boo.yaml
+  #- ./boo2.yaml

@@ -32,3 +32,13 @@ jobs:
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             echo "$file was changed"
           done
+
+      - name: Find kustomized directories
+        id: kustomized-dirs
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            DIR=$(dirname $file)
+            if -f $DIR/kustomization.yaml; then
+              echo $DIR
+            fi
+          done
