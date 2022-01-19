@@ -53,7 +53,7 @@ jobs:
             if test -f $DIR/kustomization.yaml; then
               echo $DIR
             fi
-          done
+          done)
           echo "$KUST_DIRS"
 
       - name: List all kustomized directories
