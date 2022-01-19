@@ -1,0 +1,13 @@
+name: dir-looping
+
+on:
+  push:
+    branches: 
+      - test2
+
+jobs:
+  collect-directories:
+    runs-on: ubuntu-latest
+    steps:
+      - name: get directories
+        run: ./scripts/get-directories.sh
