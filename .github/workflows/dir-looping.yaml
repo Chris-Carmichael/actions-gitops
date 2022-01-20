@@ -32,3 +32,44 @@ jobs:
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             echo "$file was changed"
           done
+
+      #- name: Find kustomized directories
+      #  id: kustomized-dirs
+      #  run: |
+      #    /bin/bash -c KUST_DIRS=$(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+      #      DIR=$(dirname $file)
+      #      if test -f $DIR/kustomization.yaml; then
+      #        echo $DIR
+      #      fi
+      #    done | sort -u)
+      #    echo "$KUST_DIRS"
+      #    #echo "::set-output name=KUST_DIRS::$KUST_DIRS"
+
+      #- name: find kust dirs
+      #  id: kust-dirs
+      #  run: |
+      #    KUST_DIRS=$(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+      #      DIR=$(dirname $file)
+      #      if test -f $DIR/kustomization.yaml; then
+      #        echo $DIR
+      #      fi
+      #    done)
+      #    echo "$KUST_DIRS"
+      #    echo "KUST_DIRS<<EOF" >> $GITHUB_ENV
+      #    echo "$KUST_DIRS" >> $GITHUB_ENV
+      #    echo "EOF" >> $GITHUB_ENV
+
+      - name: find kust dirs
+        id: kust-dirs
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            DIR=$(dirname $file)
+            if test -f $DIR/kustomization.yaml; then
+              echo $DIR
+            fi
+          done
+          echo "::set-output name=BOO::BLAH"
+
+      - name: List all kustomized directories
+        run: |
+          echo "test string: ${{ steps.kust-dirs.outputs.BOO }}"
