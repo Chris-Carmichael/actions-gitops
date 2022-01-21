@@ -71,13 +71,11 @@ jobs:
 
           echo "$KUST_DIRS"
 
-          #echo "RESULTS=${KUST_DIRS}" >> $GITHUB_ENV
           echo "RESULTS<<EOF" >> $GITHUB_ENV
           echo "$KUST_DIRS" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
           echo "::set-output name=BOO::$KUST_DIRS"
-          echo "::set-output name=RESULTS::$RESULTS"
 
       - name: inspect kust-dirs step output object
         run: echo '${{ toJSON(steps.kust-dirs.outputs) }}'
@@ -88,3 +86,9 @@ jobs:
 
       - name: Show injected environment variable
         run: echo "${{ env.RESULTS }}"
+
+      - name: loop through each directory and kustomize build
+        run: |
+          for dir in ${{ env.RESULTS }}; do
+            kustomize build $dir
+          done
