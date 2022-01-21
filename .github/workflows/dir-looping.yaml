@@ -70,6 +70,9 @@ jobs:
           done
           echo "::set-output name=BOO::BLAH"
 
+      - name: inspect kust-dirs object
+        run: echo '${{ toJSON(steps.kust-dirs.outputs) }}'
+
       - name: List all kustomized directories
         run: |
           echo "test string: ${{ steps.kust-dirs.outputs.BOO }}"
