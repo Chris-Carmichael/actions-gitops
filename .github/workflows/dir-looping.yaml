@@ -23,6 +23,11 @@ jobs:
       - name: get directories
         run: ./scripts/get-directories.sh
 
+      - name: Add kustomize-remote ssh key
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.KUSTOMIZE_REMOTE_KEY }}
+
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v13.1
@@ -45,6 +50,7 @@ jobs:
 
           echo "$KUST_DIRS"
 
+          # https://trstringer.com/github-actions-multiline-strings/
           echo "RESULTS<<EOF" >> $GITHUB_ENV
           echo "$KUST_DIRS" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
