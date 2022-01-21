@@ -90,7 +90,9 @@ jobs:
 
       - name: loop through each directory and kustomize build
         run: |
-          for dir in "${{ env.RESULTS }}"; do
+          declare -a kust_dirs=("${{ env.RESULTS }}")
+          #for dir in "${{ env.RESULTS }}"; do
+          for dir in "${kust_dirs[@]}"; do
             echo $dir
             kustomize build $dir
           done
