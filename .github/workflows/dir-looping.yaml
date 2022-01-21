@@ -98,5 +98,5 @@ jobs:
 
           for dir in "${{ env.RESULTS }}"; do
             echo $dir
-            #kustomize build $dir
+            kustomize build $dir
           done
