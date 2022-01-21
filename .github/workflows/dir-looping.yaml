@@ -62,13 +62,14 @@ jobs:
       - name: find kust dirs
         id: kust-dirs
         run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          KUST_DIRS=$(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             DIR=$(dirname $file)
             if test -f $DIR/kustomization.yaml; then
               echo $DIR
             fi
-          done
-          echo "::set-output name=BOO::BLAH"
+          done)
+
+          echo "::set-output name=BOO::$KUST_DIRS"
 
       - name: inspect kust-dirs object
         run: echo '${{ toJSON(steps.kust-dirs.outputs) }}'
