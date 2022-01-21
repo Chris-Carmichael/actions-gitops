@@ -73,7 +73,7 @@ jobs:
           echo $boo
 
           echo "loop through vars"
-          for dir in ${{ env.RESULTS }}; do
+          IFS='\n' for dir in "${{ env.RESULTS }}"; do
             echo $dir
             #kustomize build $dir
           done
