@@ -71,11 +71,17 @@ jobs:
 
           echo "$KUST_DIRS"
 
+          cat_results=$($KUST_DIRS | python3 -c 'import json; import sys; print(json.dumps(sys.stdin.read()))')
+          echo "RESULTS=${cat_results}" >> $GITHUB_ENV
+
           echo "::set-output name=BOO::$KUST_DIRS"
 
-      - name: inspect kust-dirs object
+      - name: inspect kust-dirs step output object
         run: echo '${{ toJSON(steps.kust-dirs.outputs) }}'
 
-      - name: List all kustomized directories
+      - name: Show broken BOO output (only first item in index)
         run: |
           echo "test string: ${{ steps.kust-dirs.outputs.BOO }}"
+
+      - name: Show injected environment variable
+        run: echo "$RESULTS"
