@@ -87,4 +87,4 @@ jobs:
           echo "test string: ${{ steps.kust-dirs.outputs.BOO }}"
 
       - name: Show injected environment variable
-        run: echo "env.RESULTS"
+        run: echo "${{ env.RESULTS }}"
