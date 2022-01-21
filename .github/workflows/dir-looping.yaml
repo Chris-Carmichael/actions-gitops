@@ -71,7 +71,10 @@ jobs:
 
           echo "$KUST_DIRS"
 
-          echo "RESULTS=${KUST_DIRS}" >> $GITHUB_ENV
+          #echo "RESULTS=${KUST_DIRS}" >> $GITHUB_ENV
+          echo "RESULTS<<EOF" >> $GITHUB_ENV
+          echo "$KUST_DIRS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
           echo "::set-output name=BOO::$KUST_DIRS"
           echo "::set-output name=RESULTS::$RESULTS"
@@ -84,4 +87,4 @@ jobs:
           echo "test string: ${{ steps.kust-dirs.outputs.BOO }}"
 
       - name: Show injected environment variable
-        run: echo "$RESULTS"
+        run: echo "env.RESULTS"
