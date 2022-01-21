@@ -7,7 +7,7 @@ resources:
 commonLabels:
   owner: sre-team
   environment: dev
-  project: test002
+  project: test003
 
 namespace: sre-semver
 

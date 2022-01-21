@@ -69,6 +69,8 @@ jobs:
             fi
           done)
 
+          echo "$KUST_DIRS"
+
           echo "::set-output name=BOO::$KUST_DIRS"
 
       - name: inspect kust-dirs object
