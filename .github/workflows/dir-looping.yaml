@@ -85,10 +85,12 @@ jobs:
           echo "test string: ${{ steps.kust-dirs.outputs.BOO }}"
 
       - name: Show injected environment variable
+        id: variable-injection
         run: echo "${{ env.RESULTS }}"
 
       - name: loop through each directory and kustomize build
         run: |
-          for dir in ${{ env.RESULTS }}; do
+          for dir in "${{ env.RESULTS }}"; do
+            echo $dir
             kustomize build $dir
           done
