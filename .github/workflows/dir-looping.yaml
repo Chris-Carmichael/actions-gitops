@@ -3,7 +3,7 @@ name: dir-looping
 on:
   push:
     branches:
-      - test2
+      - looping-test
   pull_request:
     branches:
       - main

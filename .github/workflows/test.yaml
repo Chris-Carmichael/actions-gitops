@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: checkout repo
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: ansible install kube tools
       run: ansible-playbook ./playbooks/install-kube-tools.yaml
