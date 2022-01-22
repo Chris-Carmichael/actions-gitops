@@ -53,7 +53,7 @@ jobs:
 
     - name: loop through each kustomize directory and kustomize build
       run: |
-        kust_dirs="${{ env.KUST_DIRS }} 
+        kust_dirs="${{ env.KUST_DIRS }}"
 
         echo "show how boo goes to single-line, comma separated" 
         echo "loop through vars"
