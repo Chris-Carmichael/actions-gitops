@@ -1,6 +1,6 @@
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: Deploy
 metadata:
   name: hello
   namespace: hello
@@ -18,7 +18,7 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1022
+        runAsUser: 1023
       containers:
       - name: hello
         image: nexus.swimlane.io:5000/ccarmichael/hello
