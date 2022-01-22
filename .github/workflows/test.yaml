@@ -1,5 +1,12 @@
 name: test
 
+# to do:
+# - helm fork
+# - add externalsecret schema
+# - add argocd schema
+# - stretch goal: add one more tool
+# - add conditions so workflow stops if changes don't effect workloads
+
 on:
   push:
     branches: 
