@@ -1,6 +1,6 @@
 ---
 apiVersion: apps/v1
-kind: Deploy
+kind: Deployment
 metadata:
   name: hello
   namespace: hello
