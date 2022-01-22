@@ -68,14 +68,14 @@ jobs:
         id: variable-injection
         run: echo "${{ env.RESULTS }}"
 
-      - name: loop through each directory and kustomize build
+      - name: loop through each kustomize directory and kustomize build
         run: |
           echo "show env results var"
           echo "${{ env.RESULTS }}"
 
           boo="${{ env.RESULTS }}"
 
-          echo "show boo var values"
+          echo "show how boo goes to single-line, comma separated"
           echo $boo
 
           echo "loop through vars"
@@ -83,3 +83,7 @@ jobs:
             echo $dir
             kustomize build $dir
           done
+
+      - name: verify manifests against kubeconform
+        
+
