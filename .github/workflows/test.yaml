@@ -73,7 +73,7 @@ jobs:
           kustomize build $dir | kubeconform -summary -strict
         done
 
-    - name: helm template helm workload directories
+    - name: get helm workload directories
       run: |
         HELM_DIRS=$(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
           DIR=$(dirname $file)
@@ -104,9 +104,9 @@ jobs:
         helm_dirs="${{ env.HELM_DIRS }}"
 
         for dir in $helm_dirs; do
-          echo $dir
+          #echo $dir
           helm dependency build $dir
-          helm template $dir
+          #helm template $dir
           #kustomize build $dir | kubeconform -summary -strict
         done
 
