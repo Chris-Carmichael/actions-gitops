@@ -106,8 +106,8 @@ jobs:
         for dir in $helm_dirs; do
           #echo $dir
           helm dependency build $dir
-          helm template $dir
-          #kustomize build $dir | kubeconform -summary -strict
+          #helm template $dir
+          helm template $dir | kubeconform -summary -strict
         done
 
     #- uses: stefanzweifel/git-auto-commit-action@v4
