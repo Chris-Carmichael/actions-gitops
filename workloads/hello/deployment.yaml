@@ -24,20 +24,3 @@ spec:
         image: nexus.swimlane.io:5000/ccarmichael/hello
         ports:
         - containerPort: 8080
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: hello
-  namespace: hello
-  labels:
-    app: hello
-spec:
-  type: ClusterIP
-  ports:
-    - port: 8080
-      protocol: TCP
-      name: http
-      targetPort: 8080
-  selector:
-    app: hello
