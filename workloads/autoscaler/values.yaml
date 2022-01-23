@@ -16,7 +16,7 @@ cluster-autoscaler:
     repository: k8s.gcr.io/autoscaling/cluster-autoscaler
     tag: v1.21.1
     pullPolicy: IfNotPresent
-  replicaCount: 1
+  replicaCount: 2
   rbac:
     create: true
     serviceAccount:

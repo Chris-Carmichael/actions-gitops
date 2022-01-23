@@ -106,7 +106,7 @@ jobs:
         for dir in $helm_dirs; do
           #echo $dir
           helm dependency build $dir
-          #helm template $dir
+          helm template $dir
           #kustomize build $dir | kubeconform -summary -strict
         done
 
