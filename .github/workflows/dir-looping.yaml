@@ -83,7 +83,3 @@ jobs:
             echo $dir
             kustomize build $dir
           done
-
-      - name: verify manifests against kubeconform
-        
-
