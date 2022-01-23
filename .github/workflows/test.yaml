@@ -1,9 +1,16 @@
 name: test
 
+# to do:
+# - helm fork
+# - add externalsecret schema
+# - add argocd schema
+# - stretch goal: add one more tool
+# - add conditions so workflow stops if changes don't effect workloads
+
 on:
   push:
     branches: 
-      - test
+      - test2
 
 jobs:
   kustomize-stuff:
@@ -12,24 +19,62 @@ jobs:
     steps:
     - name: checkout repo
       uses: actions/checkout@v2
-
-    - name: Add kustomize-remote ssh key
-      uses: webfactory/ssh-agent@v0.5.4
-      if: always()
       with:
-        ssh-private-key: ${{ secrets.KUSTOMIZE_REMOTE_KEY }}
+        fetch-depth: 0
 
     - name: ansible install kube tools
       run: ansible-playbook ./playbooks/install-kube-tools.yaml
 
+    - name: Add kustomize-remote ssh key
+      uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ secrets.KUSTOMIZE_REMOTE_KEY }}
+
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v13.1
+
     - name: Look for conftest
       run: conftest --version
 
-    - name: test local repo kustomize from OS
-      run: kustomize build workloads/hello
+    - name: List all changed files
+      run: |
+        for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          echo "$file was changed"
+        done
 
-    - name: test private remote base kustomize from OS
-      run: kustomize build workloads/sre-semver
+    - name: capture kustomize dirs
+      id: kust-dirs
+      run: |
+        KUST_DIRS=$(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          DIR=$(dirname $file)
+          if test -f $DIR/kustomization.yaml; then
+            echo $DIR
+          fi
+        done)
+
+        # create $KUST_DIRS env var - https://trstringer.com/github-actions-multiline-strings/
+        echo "KUST_DIRS<<EOF" >> $GITHUB_ENV
+        echo "$KUST_DIRS" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - name: loop through each kustomize directory and kustomize build
+      run: |
+        kust_dirs="${{ env.KUST_DIRS }}"
+
+        for dir in $kust_dirs; do
+          echo $dir
+          kustomize build $dir
+        done
+
+    - name: verify manifests against kubeconform
+      run: |
+        kust_dirs="${{ env.KUST_DIRS }}"
+
+        for dir in $kust_dirs; do
+          echo $dir
+          kustomize build $dir | kubeconform -summary -strict
+        done
 
     #- uses: stefanzweifel/git-auto-commit-action@v4
     #  # commit back into branch

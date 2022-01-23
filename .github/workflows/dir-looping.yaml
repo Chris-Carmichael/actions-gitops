@@ -3,7 +3,7 @@ name: dir-looping
 on:
   push:
     branches:
-      - test2
+      - looping-test
   pull_request:
     branches:
       - main
@@ -23,6 +23,11 @@ jobs:
       - name: get directories
         run: ./scripts/get-directories.sh
 
+      - name: Add kustomize-remote ssh key
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.KUSTOMIZE_REMOTE_KEY }}
+
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v13.1
@@ -33,46 +38,52 @@ jobs:
             echo "$file was changed"
           done
 
-      #- name: Find kustomized directories
-      #  id: kustomized-dirs
-      #  run: |
-      #    /bin/bash -c KUST_DIRS=$(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-      #      DIR=$(dirname $file)
-      #      if test -f $DIR/kustomization.yaml; then
-      #        echo $DIR
-      #      fi
-      #    done | sort -u)
-      #    echo "$KUST_DIRS"
-      #    #echo "::set-output name=KUST_DIRS::$KUST_DIRS"
-
-      #- name: find kust dirs
-      #  id: kust-dirs
-      #  run: |
-      #    KUST_DIRS=$(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-      #      DIR=$(dirname $file)
-      #      if test -f $DIR/kustomization.yaml; then
-      #        echo $DIR
-      #      fi
-      #    done)
-      #    echo "$KUST_DIRS"
-      #    echo "KUST_DIRS<<EOF" >> $GITHUB_ENV
-      #    echo "$KUST_DIRS" >> $GITHUB_ENV
-      #    echo "EOF" >> $GITHUB_ENV
-
       - name: find kust dirs
         id: kust-dirs
         run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          KUST_DIRS=$(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             DIR=$(dirname $file)
             if test -f $DIR/kustomization.yaml; then
               echo $DIR
             fi
-          done
-          echo "::set-output name=BOO::BLAH"
+          done)
 
-      - name: inspect kust-dirs object
+          echo "$KUST_DIRS"
+
+          # https://trstringer.com/github-actions-multiline-strings/
+          echo "RESULTS<<EOF" >> $GITHUB_ENV
+          echo "$KUST_DIRS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          echo "::set-output name=BOO::$KUST_DIRS"
+
+      - name: inspect kust-dirs step output object
         run: echo '${{ toJSON(steps.kust-dirs.outputs) }}'
 
-      - name: List all kustomized directories
+      - name: Show broken BOO output (only first item in index)
         run: |
           echo "test string: ${{ steps.kust-dirs.outputs.BOO }}"
+
+      - name: Show injected environment variable
+        id: variable-injection
+        run: echo "${{ env.RESULTS }}"
+
+      - name: loop through each kustomize directory and kustomize build
+        run: |
+          echo "show env results var"
+          echo "${{ env.RESULTS }}"
+
+          boo="${{ env.RESULTS }}"
+
+          echo "show how boo goes to single-line, comma separated"
+          echo $boo
+
+          echo "loop through vars"
+          for dir in $boo; do
+            echo $dir
+            kustomize build $dir
+          done
+
+      - name: verify manifests against kubeconform
+        
+
