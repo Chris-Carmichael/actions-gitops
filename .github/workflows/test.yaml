@@ -34,9 +34,6 @@ jobs:
       id: changed-files
       uses: tj-actions/changed-files@v13.1
 
-    - name: Look for conftest
-      run: conftest --version
-
     - name: List all changed files
       run: |
         for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
@@ -74,6 +71,43 @@ jobs:
         for dir in $kust_dirs; do
           echo $dir
           kustomize build $dir | kubeconform -summary -strict
+        done
+
+    - name: helm template helm workload directories
+      run: |
+        HELM_DIRS=$(for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          DIR=$(dirname $file)
+
+          # check for a Chart.yaml
+          if test -f $DIR/Chart.yaml; then
+            echo $DIR
+          fi
+
+          # check to see if basename folder is templates
+          if [ "$(basename $DIR)" == "templates" ]; then
+            #echo 'found templates directory'
+            workload_dir=$(echo "$DIR" | sed -e "s/\/[^\/]*$//")
+            #echo "$workload_dir"
+            if test -f $workload_dir/Chart.yaml; then
+              echo $workload_dir
+            fi
+          fi
+        done)
+
+        # create HELM_DIRS env var - https://trstringer.com/github-actions-multiline-strings/
+        echo "HELM_DIRS<<EOF" >> $GITHUB_ENV
+        echo "$HELM_DIRS" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - name: verify helm manifests against kubeconform
+      run: |
+        helm_dirs="${{ env.HELM_DIRS }}"
+
+        for dir in $helm_dirs; do
+          echo $dir
+          helm dependency build $dir
+          helm template $dir
+          #kustomize build $dir | kubeconform -summary -strict
         done
 
     #- uses: stefanzweifel/git-auto-commit-action@v4
