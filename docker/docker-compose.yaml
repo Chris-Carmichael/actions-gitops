@@ -1,0 +1,15 @@
+# docker-compose up --build --remove-orphans --force-recreate -- convert-crd
+version: '3.8'
+services:
+  convert-crd:
+    build:
+      context: .
+      dockerfile: convert.Dockerfile
+    image: convert-crd
+    environment:
+      CONVERT_PATH: |
+        https://raw.githubusercontent.com/external-secrets/kubernetes-external-secrets/master/charts/kubernetes-external-secrets/crds/kubernetes-client.io_externalsecrets_crd.yaml
+        https://raw.githubusercontent.com/argoproj/argo-cd/v2.2.1/manifests/crds/application-crd.yaml
+      MOUNT_PATH: '/apps/mount'
+    volumes:
+      - ${PWD}/converted:/apps/mount
