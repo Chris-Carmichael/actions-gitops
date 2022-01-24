@@ -108,7 +108,8 @@ jobs:
           #echo $dir
           helm dependency build $dir
           #helm template $dir
-          helm template $dir | kubeconform -summary -strict
+          helm template $dir | kubeconform -summary -strict -schema-location \
+            default -schema-location "schemas/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
         done
 
     #- uses: stefanzweifel/git-auto-commit-action@v4
