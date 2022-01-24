@@ -1,0 +1,7 @@
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: git@github.com:Chris-Carmichael/argocd-kind.git
+    #targetRevision: test-branch
+    targetRevision: HEAD

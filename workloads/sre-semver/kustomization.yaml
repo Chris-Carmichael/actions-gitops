@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - ssh://git@github.com:Chris-Carmichael/kustomize-remote.git//sre-test/sre-semver/base
+  - external-secret.yaml
 
 commonLabels:
   owner: sre-team

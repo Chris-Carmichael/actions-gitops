@@ -1,11 +1,11 @@
 name: test
 
 # to do:
-# - helm fork
-# - add externalsecret schema
-# - add argocd schema
-# - stretch goal: add one more tool
-# - add conditions so workflow stops if changes don't effect workloads
+# - helm fork (done)
+# - add externalsecret schema (done)
+# - add argocd schema (push to v2)
+# - stretch goal: add one more tool (push to v2)
+# - add conditions so workflow stops if changes don't effect workloads (push to v2)
 
 on:
   push:
@@ -70,7 +70,8 @@ jobs:
 
         for dir in $kust_dirs; do
           echo $dir
-          kustomize build $dir | kubeconform -summary -strict
+          kustomize build $dir | kubeconform -summary -strict -schema-location \
+            default -schema-location "schemas/{{ .ResourceKind }}_{{ .ResourceAPIVersion }}.json"
         done
 
     - name: get helm workload directories

@@ -1,0 +1,278 @@
+argo-cd:
+  server:
+    ingress:
+      enabled: true
+      hosts: 
+        - 'argo-cd.127.0.0.1.nip.io'
+    extraArgs:
+      - '--insecure'
+    config:
+      url: http://argo-cd.127.0.0.1.nip.io/
+      application.resourceTrackingMethod: annotation
+      help.download.darwin-amd64: https://www.google.com123
+      resource.customizations: |
+        networking.k8s.io/Ingress:
+          health.lua: |
+            hs = {}
+            hs.status = "Healthy"
+            return hs
+      configManagementPlugins: |
+        - name: kustomized-helm
+          init:
+            command: ["/bin/sh", "-c"]
+            args: ["helm dependency build || true"]
+          generate:
+            command: ["/bin/sh", "-c"]
+            args: ["echo \"$HELM_VALUES\" | helm template . --name-template $ARGOCD_APP_NAME --namespace $ARGOCD_APP_NAMESPACE $HELM_ARGS -f - --include-crds > all.yaml && kustomize build"]
+  controller:
+    args:
+      appResyncPeriod: 25
+
+argocd-image-updater:
+  config:
+    gitCommitUser: "argocd"
+    gitCommitMail: "argocd@company.com"
+    gitCommitTemplate: ""
+    logLevel: "info"
+    # -- ArgoCD Image Updater registries list configuration. More information [here](https://argocd-image-updater.readthedocs.io/en/stable/configuration/registries/)
+    #registries:
+    #  - name: Nexus
+    #    api_url: https://nexus.swimlane.io:5000
+    #    ping: no
+    #    prefix: nexus.swimlane.io:5000
+    #    credentials: secret:argocd/nexus-creds#nexus
+
+argocd-notifications:
+  argocdUrl: http://argo-cd.127.0.0.1.nip.io/
+  context:
+    cluster: kind-kind
+  secret:
+    create: false
+    name: "argocd-notifications-secret"
+  cm:
+    create: true
+    name: "argocd-notifications-cm"
+  # https://argocd-notifications.readthedocs.io/en/stable/subscriptions/
+  subscriptions: 
+    - recipients:
+        - slack:kind-argocd
+      triggers:
+        # these 2 don't work because there are no triggers or templates defined for these
+        - on-created
+        - on-deleted
+        # this is very noisy, and triggers notifications on every commit for apps where no changes occur
+        - on-deployed
+        - on-sync-succeeded
+    - recipients:
+        - slack:kind-argocd
+      triggers:
+        # these 3 will probably work great for a default subscription
+        - on-sync-failed
+        - on-health-degraded
+        - on-sync-status-unknown
+
+  # https://argocd-notifications.readthedocs.io/en/stable/catalog/#triggers
+  triggers:
+    trigger.on-deployed: |
+      - description: Application is synced and healthy. Triggered once per commit.
+        #oncePer: app.status.sync.revision
+        oncePer: app.status.operationState.operation.sync.revision
+        send:
+        - app-deployed
+        when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+    trigger.on-health-degraded: |
+      - description: Application has degraded
+        send:
+        - app-health-degraded
+        when: app.status.health.status == 'Degraded'
+    trigger.on-sync-failed: |
+      - description: Application syncing has failed
+        send:
+        - app-sync-failed
+        when: app.status.operationState.phase in ['Error', 'Failed']
+    trigger.on-sync-running: |
+      - description: Application is being synced
+        send:
+        - app-sync-running
+        when: app.status.operationState.phase in ['Running']
+    trigger.on-sync-status-unknown: |
+      - description: Application status is 'Unknown'
+        send:
+        - app-sync-status-unknown
+        when: app.status.sync.status == 'Unknown'
+    trigger.on-sync-succeeded: |
+      - description: Application syncing has succeeded
+        send:
+        - app-sync-succeeded
+        when: app.status.operationState.phase in ['Succeeded']
+
+    # https://argocd-notifications.readthedocs.io/en/stable/triggers/#default-triggers
+    #defaultTriggers: |
+    #  - on-created
+    #  - on-deleted
+    #  - on-deployed
+    #  - on-health-degraded
+    #  - on-sync-failed
+    #  - on-sync-status-unknown
+    #  - on-sync-running
+    #  - on-sync-succeeded
+  templates: 
+    template.app-deployed: |
+      slack:
+        attachments: |
+          [{
+            "title": "app: {{ .app.metadata.name }} :: cluster: {{ .context.cluster }}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#18be52",
+            "fields": [
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": false
+            },
+            {
+              "title": "Repository",
+              "value": "{{.app.spec.source.repoURL}}",
+              "short": false
+            },
+            {
+              "title": "Revision",
+              "value": "{{.app.status.sync.revision}}",
+              "short": false
+            },
+            {
+              "title": "Revision Author",
+              "value": "{{(call .repo.GetCommitMetadata .app.status.sync.revision).Author}}",
+              "short": false
+            }
+            {{range $index, $c := .app.status.conditions}}
+            {{if not $index}},{{end}}
+            {{if $index}},{{end}}
+            {
+              "title": "{{$c.type}}",
+              "value": "{{$c.message}}",
+              "short": false
+            }
+            {{end}}
+            ]
+          }]
+    template.app-health-degraded: |
+      slack:
+        attachments: |-
+          [{
+            "title": "template-sync-degraded {{ .app.metadata.name}} on {{ .context.cluster }}",
+            "title_link": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#f4c030",
+            "fields": [
+              {
+                "title": "Sync Status",
+                "value": "{{.app.status.sync.status}}",
+                "short": true
+              },
+              {
+                "title": "Repository",
+                "value": "{{.app.spec.source.repoURL}}",
+                "short": true
+              }
+              {{range $index, $c := .app.status.conditions}}
+              {{if not $index}},{{end}}
+              {{if $index}},{{end}}
+              {
+                "title": "{{$c.type}}",
+                "value": "{{$c.message}}",
+                "short": true
+              }
+              {{end}}
+            ]
+          }]
+    template.app-sync-failed: |
+      slack:
+        attachments: |-
+          [{
+            "title": "template-sync-failed {{ .app.metadata.name}} on {{ .context.cluster }}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#E96D76",
+            "fields": [
+              {
+                "title": "Sync Status",
+                "value": "{{.app.status.sync.status}}",
+                "short": true
+              },
+              {
+                "title": "Repository",
+                "value": "{{.app.spec.source.repoURL}}",
+                "short": true
+              }
+              {{range $index, $c := .app.status.conditions}}
+              {{if not $index}},{{end}}
+              {{if $index}},{{end}}
+              {
+                "title": "{{$c.type}}",
+                "value": "{{$c.message}}",
+                "short": true
+              }
+              {{end}}
+            ]
+          }]
+    template.app-sync-running: |
+      slack:
+        attachments: |-
+          [{
+            "title": "template-sync-running {{ .app.metadata.name}} on {{ .context.cluster }}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#0DADEA",
+            "fields": [
+              {
+                "title": "Sync Status",
+                "value": "{{.app.status.sync.status}}",
+                "short": true
+              },
+              {
+                "title": "Repository",
+                "value": "{{.app.spec.source.repoURL}}",
+                "short": true
+              }
+              {{range $index, $c := .app.status.conditions}}
+              {{if not $index}},{{end}}
+              {{if $index}},{{end}}
+              {
+                "title": "{{$c.type}}",
+                "value": "{{$c.message}}",
+                "short": true
+              }
+              {{end}}
+            ]
+          }]
+    template.app-sync-status-unknown: |
+      slack:
+        attachments: |-
+          [{
+            "title": "template-sync-status-unknown {{ .app.metadata.name}} on {{ .context.cluster }}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#E96D76",
+            "fields": [
+              {
+                "title": "Sync Status",
+                "value": "{{.app.status.sync.status}}",
+                "short": true
+              },
+              {
+                "title": "Repository",
+                "value": "{{.app.spec.source.repoURL}}",
+                "short": true
+              }
+              {{range $index, $c := .app.status.conditions}}
+              {{if not $index}},{{end}}
+              {{if $index}},{{end}}
+              {
+                "title": "{{$c.type}}",
+                "value": "{{$c.message}}",
+                "short": true
+              }
+              {{end}}
+            ]
+          }]
+    template.app-sync-succeeded: |
+      slack:
+        attachments: "[{\n  \"title\": \"{{ .app.metadata.name}} on {{ .context.cluster }}\",\n  \"title_link\":\"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}\",\n  \"color\": \"#18be52\",\n  \"fields\": [\n  {\n    \"title\": \"Sync Status\",\n    \"value\": \"{{.app.status.sync.status}}\",\n    \"short\": true\n  },\n  {\n    \"title\": \"Repository\",\n    \"value\": \"{{.app.spec.source.repoURL}}\",\n    \"short\": true\n  }\n  {{range $index, $c := .app.status.conditions}}\n  {{if not $index}},{{end}}\n  {{if $index}},{{end}}\n  {\n    \"title\": \"{{$c.type}}\",\n    \"value\": \"{{$c.message}}\",\n    \"short\": true\n  }\n  {{end}}\n  ]\n}]    "
+
