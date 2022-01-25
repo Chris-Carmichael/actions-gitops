@@ -14,7 +14,7 @@ spec:
     repoURL: {{ .Values.spec.source.repoURL }}
     path: workloads/argocd
   ## Make sure to comment the entire syncPolicy object so kubeconform tests pass
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+  #syncPolicy:
+    #automated:
+    #  prune: true
+    #  selfHeal: true
